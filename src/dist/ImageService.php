@@ -30,6 +30,25 @@ class ImageService
 	 	return ImageFieldLocal::fromJson($jsonData);
 	}
 
+    public static function getOrientation($source=null)
+    {
+        switch(exif_read_data($source)['Orientation'])
+        {
+            case 3:
+                // Rotate 180 left
+                return 180;
+                break;
+            case 6:
+                // Rotate 90 right
+                return 90;
+                break;
+            case 8:
+                // Rotate 90 left
+                return -90;
+                break;
+        }
+    }
+
 	public static function copyImage($key, $value)
 	{
 		$fileObject = new \SplFileInfo(public_path().$value->original->url);		
@@ -276,7 +295,10 @@ class ImageService
 
 	    // Now the mode
 	    $mode = $crop ? \Imagine\Image\ImageInterface::THUMBNAIL_OUTBOUND : \Imagine\Image\ImageInterface::THUMBNAIL_INSET;
-	    
+
+        // Get orientation
+        $rotate = self::getOrientation($source);
+
 	    if(empty($imagine))
 	        $imagine = self::getImagineObject();
 
@@ -284,6 +306,7 @@ class ImageService
 
 	        $imagine->open($source)
 	            ->thumbnail($size, $mode)
+                ->rotate($rotate)
 	            ->save($destination, array('quality' => $quality));
 	
 	    } catch (\Exception $e) {
