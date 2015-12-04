@@ -32,21 +32,26 @@ class ImageService
 
     public static function getOrientation($source=null)
     {
-        switch(exif_read_data($source)['Orientation'])
+        $exif_data = exif_read_data($source);
+        if(!empty($exif_data['Orientation']))
         {
-            case 3:
-                // Rotate 180 left
-                return 180;
-                break;
-            case 6:
-                // Rotate 90 right
-                return 90;
-                break;
-            case 8:
-                // Rotate 90 left
-                return -90;
-                break;
+            switch(exif_read_data($source)['Orientation'])
+            {
+                case 3:
+                    // Rotate 180 left
+                    return 180;
+                    break;
+                case 6:
+                    // Rotate 90 right
+                    return 90;
+                    break;
+                case 8:
+                    // Rotate 90 left
+                    return -90;
+                    break;
+            }
         }
+
     }
 
 	public static function copyImage($key, $value)
